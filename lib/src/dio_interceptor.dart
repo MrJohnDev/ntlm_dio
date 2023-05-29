@@ -84,7 +84,7 @@ class NtlmInterceptor extends Interceptor {
         ..validateStatus = (status) =>
             status == HttpStatus.unauthorized || status == HttpStatus.ok;
 
-      debugReq(log, req1);
+      // debugReq(log, req1);
 
       // 1. Send the initial request
       final res1 = await authDio.fetch(req1).catchError(
@@ -94,7 +94,7 @@ class NtlmInterceptor extends Interceptor {
         },
       );
 
-      log.fine('[Res1] headers = ', res1.headers);
+      // log.fine('[Res1] headers = ', res1.headers);
 
       final List<String>? res1WwwAuthHeaders =
           res1.headers[HttpHeaders.wwwAuthenticateHeader];
@@ -158,7 +158,7 @@ class NtlmInterceptor extends Interceptor {
       )..headers[HttpHeaders.authorizationHeader] =
           msg3; // HttpHeaders.authorizationHeader
 
-      debugReq(log, req2);
+      // debugReq(log, req2);
 
       final res2 = await authDio.fetch(req2).catchError((error, stackTrace) {
         if (error is DioError) {

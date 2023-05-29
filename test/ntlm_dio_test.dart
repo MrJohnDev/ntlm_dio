@@ -82,7 +82,7 @@ void main() {
   initTestLogging();
   test('test ntlm auth', () async {
     final baseOptions = BaseOptions(headers: config.headers);
-    print(config.headers);
+
     Dio dio = Dio(baseOptions);
 
     var cookieJar = CookieJar();
