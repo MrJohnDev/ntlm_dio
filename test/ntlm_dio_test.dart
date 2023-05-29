@@ -4,6 +4,7 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ntlm_dio/src/helper.dart';
 import 'dart:io' show File, HttpStatus, Platform;
 import 'package:path/path.dart' as p;
 import "package:system_info/system_info.dart";
@@ -16,7 +17,7 @@ class NtlmTestConfig {
   String domain;
   String username;
   String password;
-  Map<String, String> headers;
+  Map<String, String>? headers;
 
   static const ENV_NAME = 'NTLM_TEST_CONFIG';
   static const EXAMPLE_JSON =
@@ -53,21 +54,27 @@ class NtlmTestConfig {
   }
 
   factory NtlmTestConfig.fromJson(Map<String, dynamic> json) {
-    Map<String, String> headers;
+    Map<String, String>? headers;
     final headersMap = json['headers'];
     if (headersMap is Map) {
       headers = headersMap.cast<String, String>();
     }
     return NtlmTestConfig(
-        url: json['url'],
-        domain: json['domain'] ?? '',
-        username: json['username'],
-        password: json['password'],
-        headers: headers);
+      url: json['url'],
+      domain: json['domain'] ?? '',
+      username: json['username'],
+      password: json['password'],
+      headers: headers,
+    );
   }
 
-  NtlmTestConfig(
-      {this.url, this.domain, this.username, this.password, this.headers});
+  NtlmTestConfig({
+    required this.url,
+    required this.domain,
+    required this.username,
+    required this.password,
+    required this.headers,
+  });
 }
 
 void main() {
@@ -75,11 +82,18 @@ void main() {
   initTestLogging();
   test('test ntlm auth', () async {
     final baseOptions = BaseOptions(headers: config.headers);
+    print(config.headers);
     Dio dio = Dio(baseOptions);
-    final cookieJar = CookieJar();
-    dio.interceptors.add(CookieManager(cookieJar));
-    dio.interceptors.add(NtlmInterceptor(config.credentials,
-        () => Dio(baseOptions)..interceptors.add(CookieManager(cookieJar))));
+
+    var cookieJar = CookieJar();
+    var cookieManager = CookieManager(cookieJar);
+
+    // dio.interceptors.add(cookieManager);
+    dio.interceptors.add(NtlmInterceptor(
+      config.credentials,
+      () => Dio(baseOptions),
+      cookieManager,
+    ));
 
     final response = await dio.get(config.url);
     expect(response.statusCode, HttpStatus.ok);

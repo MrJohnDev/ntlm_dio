@@ -1,28 +1,26 @@
 name: ntlm_dio
 description: A new Flutter package project.
-version: 0.0.2
+version: 0.0.3
 author:
 homepage:
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.22.0 <4.0.0"
 
 dependencies:
-  dio: ^3.0.0
-  dio_cookie_manager: ^1.0.0
-  logging: ">=0.11.3+2 <1.0.0"
+  dio: ^5.1.2
+  dio_cookie_manager: ^3.0.0
+  logging: ">=1.2.0"
   ntlm:
-    git:
-      url: git://github.com/mrbbot/ntlm.git
-      ref: 1218d18
+    git: https://github.com/MrJohnDev/flutter_ntlm_cyrillic.git
   flutter:
     sdk: flutter
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  path: ^1.6.2
-  system_info: ^0.1.0
+  path: ^1.8.3
+  system_info: ^1.0.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://www.dartlang.org/tools/pub/pubspec
