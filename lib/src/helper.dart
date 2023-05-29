@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:logging/logging.dart';
 import 'package:ntlm/ntlm.dart';
-import 'package:ntlm_dio/ntlm_dio.dart';
 
 final log = new Logger("ntlm.dio_interceptor");
 

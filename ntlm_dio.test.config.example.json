@@ -1,0 +1,14 @@
+{
+    "url": "url",
+    "username": "login",
+    "workstation": "App",
+    "password": "pass",
+    "headers": {
+        "Accept": "application/json; odata=nometadata",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Connection": "keep-alive",
+        "Host": "host",
+        "Origin": "host",
+        "Referer": "host"
+    }
+}

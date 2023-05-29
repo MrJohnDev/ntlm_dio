@@ -169,11 +169,13 @@ class NtlmInterceptor extends Interceptor {
           );
           if (error.type == DioErrorType.badResponse &&
               error.response?.statusCode == HttpStatus.unauthorized) {
-            return Future<Response<dynamic>>.error(InvalidCredentialsException(
-              e.response?.requestOptions ?? RequestOptions(),
-              'invalid authentication.',
-              error,
-            ));
+            return Future<Response<dynamic>>.error(
+              InvalidCredentialsException(
+                e.response?.requestOptions ?? RequestOptions(),
+                'invalid authentication.',
+                error,
+              ),
+            );
           }
         }
         return Future<Response<dynamic>>.error(error, stackTrace);
