@@ -5,7 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ntlm_dio/src/helper.dart';
-import 'dart:io' show File, HttpStatus, Platform;
+import 'dart:io' show Cookie, File, HttpStatus, Platform;
 import 'package:path/path.dart' as p;
 import "package:system_info/system_info.dart";
 
@@ -88,7 +88,7 @@ void main() {
     var cookieJar = CookieJar();
     var cookieManager = CookieManager(cookieJar);
 
-    // dio.interceptors.add(cookieManager);
+    dio.interceptors.add(cookieManager);
     dio.interceptors.add(NtlmInterceptor(
       config.credentials,
       () => Dio(baseOptions),
@@ -97,5 +97,16 @@ void main() {
 
     final response = await dio.get(config.url);
     expect(response.statusCode, HttpStatus.ok);
+
+    final response2 = await dio.get(config.url);
+    expect(response2.statusCode, HttpStatus.ok);
+
+    List<Cookie> cookies =
+        await cookieJar.loadForRequest(Uri.parse('https://sp.krastsvetmet.ru'));
+    log.fine('[cookies]', cookies);
+
+    final response3 = await dio.get(
+        'https://sp.krastsvetmet.ru/_Services/Employeesv2/ServiceSP.svc/GetEmployeesByLogin?login=r.danilchenko');
+    expect(response3.statusCode, HttpStatus.ok);
   });
 }
