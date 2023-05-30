@@ -26,3 +26,4 @@ pubspec.lock
 
 /android
 /ios
+.ntlm_dio.test.config*.json
