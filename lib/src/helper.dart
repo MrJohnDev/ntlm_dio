@@ -78,6 +78,25 @@ String debugHttpHeaders(Headers? headers) {
   return ret.toString();
 }
 
+String? getNtlmHeader(
+  List<String>? res1WwwAuthHeaders,
+  Credentials credentials,
+) {
+  // log.fine('[Res1] res1WwwAuthHeaders = ', res1WwwAuthHeaders);
+
+  // Servers may support multiple authentication methods so we need to find
+  // the correct one
+  if (res1WwwAuthHeaders != null) {
+    for (var wwwAuthHeader in res1WwwAuthHeaders) {
+      // log.fine('[Res1] wwwAuthHeader = ', wwwAuthHeader);
+      var trimmedPart = wwwAuthHeader.trim();
+      if (trimmedPart.startsWith('${credentials.headerPrefix} ')) {
+        return trimmedPart;
+      }
+    }
+  }
+}
+
 RequestOptions copyRequest(RequestOptions request, dynamic body) =>
     request.copyWith(data: body);
 
@@ -113,4 +132,26 @@ Map<String, dynamic> getHeadersCookieString(String? cookies) {
     }
   });
   return headersMap;
+}
+
+String getMsgType3(
+  String ntlmRes1,
+  DioError e,
+  Credentials credentials,
+) {
+  Type2Message msg2 = parseType2Message(
+    ntlmRes1,
+    headerPrefix: credentials.headerPrefix,
+  );
+
+  // 3. Send the authenticated request
+  final msg3 = createType3Message(
+    msg2,
+    domain: credentials.domain,
+    workstation: credentials.workstation,
+    username: credentials.username,
+    password: credentials.password,
+    headerPrefix: credentials.headerPrefix,
+  );
+  return msg3;
 }

@@ -48,6 +48,8 @@ class NtlmInterceptor extends Interceptor {
       if (!wwwAuthHeaders.contains('NTLM')) {
         log.warning('[part 1] no NTLM header');
         return e;
+      } else {
+        log.warning('[part 1] NTLM Header');
       }
 
       Dio authDio = authDioCreator();
@@ -73,10 +75,11 @@ class NtlmInterceptor extends Interceptor {
         // newCookies..addAll(headers[HttpHeaders.cookieHeader]);
       }
 
-      headers[HttpHeaders.authorizationHeader] = msg1;
       headers[HttpHeaders.cookieHeader] = newCookies.entries
           .map((entry) => '${entry.key}=${entry.value}')
           .join('; ');
+
+      headers[HttpHeaders.authorizationHeader] = msg1;
 
       // log.fine('[Res1] headers1 = ${headers.runtimeType}', headers);
 
@@ -100,26 +103,10 @@ class NtlmInterceptor extends Interceptor {
         },
       );
 
-      // log.fine('[Res1] headers = ', res1.headers);
-
-      final List<String>? res1WwwAuthHeaders =
-          res1.headers[HttpHeaders.wwwAuthenticateHeader];
-
-      // log.fine('[Res1] res1WwwAuthHeaders = ', res1WwwAuthHeaders);
-
-      // Servers may support multiple authentication methods so we need to find
-      // the correct one
-      String? ntlmRes1;
-      if (res1WwwAuthHeaders != null) {
-        for (var wwwAuthHeader in res1WwwAuthHeaders) {
-          // log.fine('[Res1] wwwAuthHeader = ', wwwAuthHeader);
-          var trimmedPart = wwwAuthHeader.trim();
-          if (trimmedPart.startsWith('${credentials.headerPrefix} ')) {
-            ntlmRes1 = trimmedPart;
-            break;
-          }
-        }
-      }
+      String? ntlmRes1 = getNtlmHeader(
+        res1.headers[HttpHeaders.wwwAuthenticateHeader],
+        credentials,
+      );
 
       // log.fine('[Res1] ntlmRes1 = ', ntlmRes1);
 
@@ -141,20 +128,7 @@ class NtlmInterceptor extends Interceptor {
         return res1;
       }
 
-      Type2Message msg2 = parseType2Message(
-        ntlmRes1,
-        headerPrefix: credentials.headerPrefix,
-      );
-
-      // 3. Send the authenticated request
-      final msg3 = createType3Message(
-        msg2,
-        domain: credentials.domain,
-        workstation: credentials.workstation,
-        username: credentials.username,
-        password: credentials.password,
-        headerPrefix: credentials.headerPrefix,
-      );
+      final msg3 = getMsgType3(ntlmRes1, e, credentials);
 
       // log.fine('[Type3] NTLM = ', msg3);
 
