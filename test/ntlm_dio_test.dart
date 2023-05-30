@@ -5,10 +5,9 @@ import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ntlm_dio/src/helper.dart';
-import 'dart:io' show Cookie, File, HttpStatus, Platform;
+import 'dart:io' show File, HttpStatus, Platform;
 import 'package:path/path.dart' as p;
 import "package:system_info/system_info.dart";
-
 import 'package:ntlm_dio/ntlm_dio.dart';
 import './_test_utils.dart';
 
@@ -91,7 +90,7 @@ void main() {
     dio.interceptors.add(cookieManager);
     dio.interceptors.add(NtlmInterceptor(
       config.credentials,
-      () => Dio(baseOptions),
+      () => dio,
       cookieManager,
     ));
 
@@ -104,5 +103,9 @@ void main() {
     final response3 = await dio.get(
         'https://sp.krastsvetmet.ru/_Services/Employeesv2/ServiceSP.svc/GetEmployeesByLogin?login=r.danilchenko');
     expect(response3.statusCode, HttpStatus.ok);
+
+    final response4 = await dio.get(
+        'https://sp.krastsvetmet.ru/_Services/Employeesv2/ServiceSP.svc/GetEmployeesByLogin?login=r.danilchenko');
+    expect(response4.statusCode, HttpStatus.ok);
   });
 }
