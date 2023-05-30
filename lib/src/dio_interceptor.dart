@@ -14,7 +14,9 @@ class NtlmInterceptor extends Interceptor {
     RequestInterceptorHandler handler,
   ) async {
     log.finer(
-        "We are sending request. ${options.headers} ${options.data} ${options.path}");
+      'We are sending request. ${options.headers} ${options.data}\n'
+      '${options.path}',
+    );
     super.onRequest(options, handler);
   }
 
@@ -64,8 +66,8 @@ class NtlmInterceptor extends Interceptor {
       var headers = e.requestOptions.headers;
 
       if (headers[HttpHeaders.cookieHeader] != null) {
-        log.fine('[Res1] headers1 = ${headers[HttpHeaders.cookieHeader]}',
-            headers[HttpHeaders.cookieHeader].runtimeType);
+        // log.fine('[Res1] headers1 = ${headers[HttpHeaders.cookieHeader]}',
+        //     headers[HttpHeaders.cookieHeader].runtimeType);
         newCookies
           ..addAll(getHeadersCookieString(headers[HttpHeaders.cookieHeader]));
         // newCookies..addAll(headers[HttpHeaders.cookieHeader]);
@@ -184,8 +186,10 @@ class NtlmInterceptor extends Interceptor {
         }
         return Future<Response<dynamic>>.error(error, stackTrace);
       });
-      log.finer(
-          'Received type3 message response. ${res2.statusCode}.\n${res2.toString()}');
+      // log.finer(
+      //   'Received type3 message response. '
+      //   '${res2.statusCode}.\n${res2.toString()}',
+      // );
 
       // return res2;
       return handler.resolve(res2);
@@ -198,7 +202,7 @@ class NtlmInterceptor extends Interceptor {
       log.warning('Error while trying to authenticate.\n$msg', e, stackTrace);
       rethrow;
     } finally {
-      log.finer('Finished onError handler.');
+      // log.finer('Finished onError handler.');
     }
   }
 }

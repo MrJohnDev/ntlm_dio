@@ -101,10 +101,6 @@ void main() {
     final response2 = await dio.get(config.url);
     expect(response2.statusCode, HttpStatus.ok);
 
-    List<Cookie> cookies =
-        await cookieJar.loadForRequest(Uri.parse('https://sp.krastsvetmet.ru'));
-    log.fine('[cookies]', cookies);
-
     final response3 = await dio.get(
         'https://sp.krastsvetmet.ru/_Services/Employeesv2/ServiceSP.svc/GetEmployeesByLogin?login=r.danilchenko');
     expect(response3.statusCode, HttpStatus.ok);
