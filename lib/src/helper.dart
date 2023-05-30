@@ -99,3 +99,18 @@ Map<String, dynamic> getHeadersCookie(DioError e) {
   });
   return headersMap;
 }
+
+Map<String, dynamic> getHeadersCookieString(String? cookies) {
+  Map<String, dynamic> headersMap = {};
+
+  cookies?.split('; ').forEach((cookie) {
+    // log.finer('cookie: ${cookie.toString()}');
+    List<String> parts = cookie.split('=');
+    if (parts.length == 2) {
+      String name = parts[0].trim();
+      String value = parts[1].trim();
+      headersMap[name] = value;
+    }
+  });
+  return headersMap;
+}

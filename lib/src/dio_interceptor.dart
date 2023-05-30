@@ -64,7 +64,11 @@ class NtlmInterceptor extends Interceptor {
       var headers = e.requestOptions.headers;
 
       if (headers[HttpHeaders.cookieHeader] != null) {
-        newCookies..addAll(headers[HttpHeaders.cookieHeader]);
+        log.fine('[Res1] headers1 = ${headers[HttpHeaders.cookieHeader]}',
+            headers[HttpHeaders.cookieHeader].runtimeType);
+        newCookies
+          ..addAll(getHeadersCookieString(headers[HttpHeaders.cookieHeader]));
+        // newCookies..addAll(headers[HttpHeaders.cookieHeader]);
       }
 
       headers[HttpHeaders.authorizationHeader] = msg1;
