@@ -183,7 +183,8 @@ class NtlmInterceptor extends Interceptor {
       log.finer(
           'Received type3 message response. ${res2.statusCode}.\n${res2.toString()}');
 
-      return res2;
+      // return res2;
+      return handler.resolve(res2);
     } catch (e, stackTrace) {
       String msg = 'error:${e.runtimeType}';
       if (e is DioError) {
