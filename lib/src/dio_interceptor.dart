@@ -4,30 +4,7 @@ class NtlmInterceptor extends Interceptor {
   final Credentials credentials;
   final AuthDioCreator authDioCreator;
 
-  final CookieManager? cookieManager;
-
-  NtlmInterceptor(this.credentials, this.authDioCreator, [this.cookieManager]);
-
-  @override
-  Future<void> onRequest(
-    RequestOptions options,
-    RequestInterceptorHandler handler,
-  ) async {
-    log.finer(
-      'We are sending request. ${options.headers} ${options.data}\n'
-      '${options.path}',
-    );
-    super.onRequest(options, handler);
-  }
-
-  @override
-  Future<void> onResponse(
-    Response response,
-    ResponseInterceptorHandler handler,
-  ) async {
-    log.fine('Intercepted onSuccess. ${response.statusCode}}');
-    super.onResponse(response, handler);
-  }
+  NtlmInterceptor(this.credentials, this.authDioCreator);
 
   @override
   Future onError(
@@ -53,9 +30,6 @@ class NtlmInterceptor extends Interceptor {
       }
 
       Dio authDio = authDioCreator();
-      if (cookieManager != null) {
-        authDio.interceptors.add(cookieManager!);
-      }
 
       final msg1 = createType1Message(
         domain: credentials.domain,
@@ -68,11 +42,8 @@ class NtlmInterceptor extends Interceptor {
       var headers = e.requestOptions.headers;
 
       if (headers[HttpHeaders.cookieHeader] != null) {
-        // log.fine('[Res1] headers1 = ${headers[HttpHeaders.cookieHeader]}',
-        //     headers[HttpHeaders.cookieHeader].runtimeType);
         newCookies
           ..addAll(getHeadersCookieString(headers[HttpHeaders.cookieHeader]));
-        // newCookies..addAll(headers[HttpHeaders.cookieHeader]);
       }
 
       headers[HttpHeaders.cookieHeader] = newCookies.entries
@@ -81,21 +52,13 @@ class NtlmInterceptor extends Interceptor {
 
       headers[HttpHeaders.authorizationHeader] = msg1;
 
-      // log.fine('[Res1] headers1 = ${headers.runtimeType}', headers);
-
-      // End Header Setter
-
-      var req1 = copyRequest(
-        e.requestOptions,
-        e.requestOptions.data,
-      )
+      var req1 = copyRequest(e.requestOptions, e.requestOptions.data)
         ..headers = headers
         ..validateStatus = (status) =>
             status == HttpStatus.unauthorized || status == HttpStatus.ok;
 
       // debugReq(log, req1);
 
-      // 1. Send the initial request
       final res1 = await authDio.fetch(req1).catchError(
         (error, stackTrace) {
           log.fine('[Req1] Error during message.', error, stackTrace);
@@ -108,10 +71,6 @@ class NtlmInterceptor extends Interceptor {
         credentials,
       );
 
-      // log.fine('[Res1] ntlmRes1 = ', ntlmRes1);
-
-      // If the initial request was successful or this isn't an NTLM request,
-      // return the initial response
       if (res1.statusCode == HttpStatus.ok || ntlmRes1 == null) {
         log.warning(
           '[Res1] NO AUTH HEADERS '
@@ -130,15 +89,8 @@ class NtlmInterceptor extends Interceptor {
 
       final msg3 = getMsgType3(ntlmRes1, e, credentials);
 
-      // log.fine('[Type3] NTLM = ', msg3);
-
-      var req2 = copyRequest(
-        req1,
-        e.requestOptions.data,
-      )..headers[HttpHeaders.authorizationHeader] =
-          msg3; // HttpHeaders.authorizationHeader
-
-      // debugReq(log, req2);
+      var req2 = copyRequest(req1, e.requestOptions.data)
+        ..headers[HttpHeaders.authorizationHeader] = msg3;
 
       final res2 = await authDio.fetch(req2).catchError((error, stackTrace) {
         if (error is DioError) {
@@ -160,12 +112,7 @@ class NtlmInterceptor extends Interceptor {
         }
         return Future<Response<dynamic>>.error(error, stackTrace);
       });
-      // log.finer(
-      //   'Received type3 message response. '
-      //   '${res2.statusCode}.\n${res2.toString()}',
-      // );
 
-      // return res2;
       return handler.resolve(res2);
     } catch (e, stackTrace) {
       String msg = 'error:${e.runtimeType}';
