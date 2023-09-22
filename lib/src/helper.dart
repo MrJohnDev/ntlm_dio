@@ -82,22 +82,24 @@ String? getNtlmHeader(
   List<String>? res1WwwAuthHeaders,
   Credentials credentials,
 ) {
-  // log.fine('[Res1] res1WwwAuthHeaders = ', res1WwwAuthHeaders);
-
   // Servers may support multiple authentication methods so we need to find
   // the correct one
+
   if (res1WwwAuthHeaders != null) {
     for (var wwwAuthHeader in res1WwwAuthHeaders) {
-      // log.fine('[Res1] wwwAuthHeader = ', wwwAuthHeader);
       var trimmedPart = wwwAuthHeader.trim();
       if (trimmedPart.startsWith('${credentials.headerPrefix} ')) {
         return trimmedPart;
       }
     }
   }
+  return null;
 }
 
-RequestOptions copyRequest(RequestOptions request, dynamic body) =>
+RequestOptions copyRequest(
+  RequestOptions request,
+  dynamic body,
+) =>
     request.copyWith(data: body);
 
 Map<String, dynamic> getHeadersCookie(DioError e) {

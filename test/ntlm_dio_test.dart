@@ -5,7 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ntlm_dio/src/helper.dart';
-import 'dart:io' show File, HttpStatus, Platform;
+import 'dart:io' show Cookie, File, HttpStatus, Platform;
 import 'package:path/path.dart' as p;
 import "package:system_info/system_info.dart";
 import 'package:ntlm_dio/ntlm_dio.dart';
@@ -88,24 +88,37 @@ void main() {
     var cookieManager = CookieManager(cookieJar);
 
     dio.interceptors.add(cookieManager);
+    // dio.interceptors.add(LogInterceptor());
     dio.interceptors.add(NtlmInterceptor(
       config.credentials,
       () => dio,
-      cookieManager,
     ));
 
     final response = await dio.get(config.url);
+    log.fine('response', response.data.toString());
     expect(response.statusCode, HttpStatus.ok);
 
     final response2 = await dio.get(config.url);
+    log.fine('response2', response2.data.toString());
     expect(response2.statusCode, HttpStatus.ok);
 
-    final response3 = await dio.get(
-        'https://sp.krastsvetmet.ru/_Services/Employeesv2/ServiceSP.svc/GetEmployeesByLogin?login=r.danilchenko');
+    final response3 = await dio.post(
+      'https://sp.krastsvetmet.ru/_vti_bin/lk/serviceLK.svc/SecondAuth',
+      data: {"Type": 1, "Value": config.credentials.password},
+    );
+
+    log.fine('response3', response3.data.toString());
     expect(response3.statusCode, HttpStatus.ok);
 
+    Cookie cookie = Cookie('TokenUser', response3.data['token']['Token']);
+    cookieJar.saveFromResponse(
+      Uri.parse('https://sp.krastsvetmet.ru'),
+      [cookie],
+    );
+
     final response4 = await dio.get(
-        'https://sp.krastsvetmet.ru/_Services/Employeesv2/ServiceSP.svc/GetEmployeesByLogin?login=r.danilchenko');
+        'https://sp.krastsvetmet.ru/_vti_bin/lk/serviceLK.svc/GetPaysheetStruct?date=2023-03-01');
+    log.fine('response4', response4.data.toString());
     expect(response4.statusCode, HttpStatus.ok);
   });
 }
